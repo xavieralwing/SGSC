@@ -1,0 +1,2444 @@
+package authDetail
+import org.apache.spark._
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext._
+import org.apache.spark.sql.SQLContext._
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql._
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.types.StructType
+import scala.io.Source
+import org.apache.log4j._
+import com.google.gson.Gson
+
+object authProcess {
+  def main(args: Array[String]) {
+    System.setProperty("hadoop.home.dir", "c:\\winutils\\")
+       Logger.getLogger("org").setLevel(Level.ERROR)
+    val conf = new SparkConf().setAppName("MySQLDataLoad").setMaster("local")
+    val sc = new SparkContext(conf)
+    val sqlcontext = new org.apache.spark.sql.SQLContext(sc)
+    val spark = SparkSession.builder.appName("Auth Process").getOrCreate()
+    import spark.implicits._
+    
+    val fileName = "d:\\Alwin\\auth.csv" 
+    val authRead   = spark.read
+                    .option("header","true")
+                    .csv( fileName)
+
+      val trans_file = Source.fromFile(fileName).getLines().drop(1)
+      val transactions = trans_file.map(lines => lines.split(",")).
+          map(split => authDtls(split(0),split(2),split(3),split(128))).toList
+
+      val filterauth = transactions.filter(line => line.aua != "650000" && line.sa != "SERVICEMON")
+      val filtereqauasa = filterauth.filter(line => line.aua == line.sa)
+      
+      val res_state = filtereqauasa.map(_.res_state_name)
+      
+      val gson = new Gson
+      for (state_nm <- res_state) 
+       {  
+          val state_name = res_St(state_nm.toString)
+          val jsonString = gson.toJson(state_name)
+          println(jsonString)
+      }
+    spark.stop()
+  }
+}  
+============================================================================================
+Output Result:
+
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Orissa"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Nagaland"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Orissa"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Puducherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Chandigarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Orissa"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Puducherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Chandigarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Orissa"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Tripura"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Puducherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Chandigarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Orissa"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Telangana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Puducherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Chandigarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Puducherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Pondicherry"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":""}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Haryana"}
+{"res_state_name":""}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":""}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Odisha"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Jammu and Kashmir"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Uttarakhand"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Himachal Pradesh"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Chhattisgarh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Kerala"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Chandigarh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Madhya Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Tamil Nadu"}
+{"res_state_name":"Bihar"}
+{"res_state_name":"Gujarat"}
+{"res_state_name":""}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"Haryana"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Punjab"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Uttar Pradesh"}
+{"res_state_name":"Rajasthan"}
+{"res_state_name":"Jharkhand"}
+{"res_state_name":"Maharashtra"}
+{"res_state_name":"West Bengal"}
+{"res_state_name":"Delhi"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Karnataka"}
+{"res_state_name":"Andhra Pradesh"}
+{"res_state_name":"Andhra Pradesh"}
